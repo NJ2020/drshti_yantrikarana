@@ -1,6 +1,5 @@
 """
-Reference: 
-Usage:
+Usage: python CreateMetaData.py
 
 About: Script to create meta data for image data stored in the format mentioned in README Data Format Section
 
@@ -19,13 +18,16 @@ from drshti_yantrikarana.config import data_dir
 logging.basicConfig(level=logging.INFO)
 
 
+# TODO: Write test cases for create meta data method
+# TODO: Add function to fix the corrupted images
+
 class ImageMetaData(object):
 
     def __init__(self):
         pass
 
     @staticmethod
-    def create_meta_data()->None:
+    def create_meta_data() -> None:
         """
         Function to create meta data from data dir
         :return: None
@@ -61,7 +63,6 @@ class ImageMetaData(object):
         corrupted_images.to_sql('Corrupted_images', mysql_engine, if_exists='replace')
         image_level_meta_data.to_sql('Image_level_meta_data', mysql_engine, if_exists='replace')
 
-# TODO: Write test cases for create meta data method
 
 if __name__ == '__main__':
     ImageMetaData.create_meta_data()
