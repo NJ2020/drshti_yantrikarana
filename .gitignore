@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#data files
+/data
+/HDF5_data_files/
+/TFRecords_data_files/
+
+
+/.idea
+/.DS_Store
