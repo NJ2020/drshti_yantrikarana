@@ -18,7 +18,6 @@ from drshti_yantrikarana.config import data_dir
 logging.basicConfig(level=logging.INFO)
 
 
-# TODO: Write test cases for create meta data method
 # TODO: Add function to fix the corrupted images
 
 class ImageMetaData(object):

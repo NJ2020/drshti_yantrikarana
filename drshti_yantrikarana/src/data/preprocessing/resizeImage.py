@@ -2,26 +2,27 @@
 Reference: 
 Usage:
 
-About: Module to resize image automatically for training on pretrianed models
+About: Module to resize images to defined resolution in config file
 
-Resizing is done by:
-    - Get the smaller dimension of the image
-    - Reduce smaller dimension to 1/5th(d) of original dimension
-    - Crop an image with resolution (dxd) from the center of the image
 
 Author: Satish Jasthi
 """
+import sys
+from pathlib import Path
+
 from PIL import Image
 import tensorflow as tf
+
+sys.path.append(Path(__file__).resolve().parent.parent.parent.parent.parent.as_posix())
 
 from drshti_yantrikarana import resize_shape
 
 
-def resize_image(image_path:str)->tf.image:
+def resize_image(image_path: str) -> tf.image:
     """
     Function to read an image, convert it into a square image and 
     resize it to standard resolution as defined in config
-    :param image_path:str 
+    :param image_path:str
     :return: tf.image
     """
 
@@ -45,12 +46,7 @@ def resize_image(image_path:str)->tf.image:
                                                       target_height=h,
                                                       target_width=h
                                                       )
-    
+
     # resize image to predifined res in config
-    resized_image = tf.image.resize(cropped_image,size=resize_shape)
+    resized_image = tf.image.resize(cropped_image, size=resize_shape)
     return resized_image
-
-# img = Image.fromarray(resize_image('/Users/satishjasthi/Downloads/letters.jpeg').numpy().astype('uint8'))
-# print(img.size)
-# img.show()
-
