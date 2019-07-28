@@ -24,3 +24,8 @@ resize_shape = (224,224)
 data_mu = ''
 data_sigma = ''
 channel_depth = 3
+
+# data augmentation#####################################################################################################
+# for random rotation
+rotation_min = 10
+rotation_max = 45
