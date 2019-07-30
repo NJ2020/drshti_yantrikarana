@@ -11,20 +11,32 @@ import numpy as np
 import tables
 import tensorflow as tf
 
-from drshti_yantrikarana import hdf5_data, tfRecord_data
-from drshti_yantrikarana.config import external_data_dir, LOGGER_LEVEL
+from drshti_yantrikarana import TrainHdf5_data, TrainTfRecord_data
+from drshti_yantrikarana.config import external_data_dir, LOGGER_LEVEL, TestHdf5_data, TestTfRecord_data
 from drshti_yantrikarana.src.data.storage.createDataArrays import CreateNdDataArray
 
 logging.basicConfig(level=LOGGER_LEVEL)
 
+
 class TfRecords(object):
 
-    def __init__(self):
-        if hdf5_data.exists():
-            self.hdf5_data = tables.open_file(hdf5_data, mode='r')
-            tfRecord_data.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            raise IOError(f'Unable to find {hdf5_data.as_posix()}, Please create hdf5 file before running tf records')
+    def __init__(self, mode=None):
+        self.mode = mode
+
+        if mode == 'train':
+            if TrainHdf5_data.exists():
+                self.hdf5_data = tables.open_file(TrainHdf5_data, mode='r')
+                TrainTfRecord_data.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                raise IOError(
+                    f'Unable to find {TrainHdf5_data.as_posix()}, Please create hdf5 file before running tf records')
+        elif mode == 'test':
+            if TestHdf5_data.exists():
+                self.hdf5_data = tables.open_file(TestHdf5_data, mode='r')
+                TestTfRecord_data.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                raise IOError(
+                    f'Unable to find {TestHdf5_data.as_posix()}, Please create hdf5 file before running tf records')
 
     @staticmethod
     def _int64_feature(value):
@@ -62,7 +74,10 @@ class TfRecords(object):
         """
         logging
         # read images and labels from hdf5
-        hdf5_data_arrays = tables.open_file(hdf5_data, w='r')
+        if self.mode == 'train':
+            hdf5_data_arrays = tables.open_file(TrainHdf5_data, w='r')
+        elif self.mode == 'test':
+            hdf5_data_arrays = tables.open_file(TestHdf5_data, w='r')
 
         # image generator
         image_gen = hdf5_data_arrays.root.images
@@ -72,12 +87,20 @@ class TfRecords(object):
         unique_labels = set(label_names)
         label_index_map = {label: index for index, label in enumerate(unique_labels)}
 
-        with tf.compat.v1.python_io.TFRecordWriter(tfRecord_data.as_posix()) as writer:
-            for image_arr, label in zip(image_gen, label_names):
-                tf_example = self.convert2FeatureMessage(image_arr, label_index_map[label])
-                writer.write(tf_example.SerializeToString())
+        if self.mode == 'train':
+            with tf.compat.v1.python_io.TFRecordWriter(TrainTfRecord_data.as_posix()) as writer:
+                for image_arr, label in zip(image_gen, label_names):
+                    tf_example = self.convert2FeatureMessage(image_arr, label_index_map[label])
+                    writer.write(tf_example.SerializeToString())
 
-        hdf5_data_arrays.close()
+            hdf5_data_arrays.close()
+        elif self.mode == 'test':
+            with tf.compat.v1.python_io.TFRecordWriter(TestTfRecord_data.as_posix()) as writer:
+                for image_arr, label in zip(image_gen, label_names):
+                    tf_example = self.convert2FeatureMessage(image_arr, label_index_map[label])
+                    writer.write(tf_example.SerializeToString())
+
+            hdf5_data_arrays.close()
 
     @staticmethod
     def _parse_image_function(example_proto):
@@ -98,13 +121,17 @@ class TfRecords(object):
         Method to read tf record format image data
         :return:
         """
-        raw_image_dataset = tf.data.TFRecordDataset(tfRecord_data)
+        if self.mode == 'train':
+            raw_image_dataset = tf.data.TFRecordDataset(TrainTfRecord_data)
+        elif self.mode == 'test':
+            raw_image_dataset = tf.data.TFRecordDataset(TestTfRecord_data)
         parsed_image_dataset = raw_image_dataset.map(self._parse_image_function)
         return parsed_image_dataset
 
+
 def main():
-    CreateNdDataArray().createNdArray()
-    tfRecord_creator = TfRecords()
+    CreateNdDataArray(mode='train').createNdArray()
+    tfRecord_creator = TfRecords(mode='train')
     tfRecord_creator.writeTfRecord()
 
 

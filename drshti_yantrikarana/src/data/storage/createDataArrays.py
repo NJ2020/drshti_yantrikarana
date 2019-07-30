@@ -20,11 +20,15 @@ logging.basicConfig(level=logging.DEBUG)
 
 class CreateNdDataArray(object):
 
-    def __init__(self):
+    def __init__(self, mode=None):
         # create a folder to store nd data array in a HDF5 file
+        self.mode=mode
         self.hdf5_file_path = data_dir.joinpath(data_dir.parent, 'HDF5_data_files')
         self.hdf5_file_path.mkdir(parents=True, exist_ok=True)
-        self.hdf5_file = self.hdf5_file_path.joinpath(self.hdf5_file_path, 'Data.h5')
+        if self.mode=='train':
+            self.hdf5_file = self.hdf5_file_path.joinpath(self.hdf5_file_path, 'TrainData.h5')
+        elif self.mode=='test':
+            self.hdf5_file = self.hdf5_file_path.joinpath(self.hdf5_file_path, 'TestData.h5')
         self.hdf5_file = tables.open_file(self.hdf5_file, mode='w')
 
     def createNdArray(self):
@@ -65,5 +69,5 @@ class CreateNdDataArray(object):
 
 if __name__ == '__main__':
     # TODO: Write test data for CreateDataArray
-    o = CreateNdDataArray()
+    o = CreateNdDataArray(mode='train')
     o.createNdArray()

@@ -5,7 +5,7 @@ About: module to help with creating database tables for other module in package
 
 Author: Satish Jasthi
 """
-
+import numpy as np
 from sqlalchemy import create_engine
 from pymongo import MongoClient
 from sqlalchemy_utils.functions import database_exists, create_database
@@ -20,6 +20,10 @@ if database_exists(mysql_credentials):
     mysql_engine = create_engine(mysql_credentials)
 else:
     mysql_engine = create_database(mysql_credentials)
+
+# num classes
+num_classes = np.squeeze(mysql_engine.execute('SELECT count(distinct(`Class`))'
+                                              ' FROM drshit_yantrikarana.Class_wise_image_count').fetchall())
 
 # Mongo db..............................................................................................................
 mongo_client = MongoClient()
