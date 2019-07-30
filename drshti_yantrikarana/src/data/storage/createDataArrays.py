@@ -6,15 +6,18 @@ datasets using pytables
 
 Author: Satish Jasthi
 """
+import logging
 
 import numpy as np
 import tables
 from PIL import Image
+import tensorflow as tf
 
 from drshti_yantrikarana import data_dir, resize_shape, channel_depth
+from drshti_yantrikarana.src.data.preprocessing.resizeImage import resize_image
 
+logging.basicConfig(level=logging.DEBUG)
 
-# TODO: Add logger
 class CreateNdDataArray(object):
 
     def __init__(self):
@@ -24,7 +27,7 @@ class CreateNdDataArray(object):
         self.hdf5_file = self.hdf5_file_path.joinpath(self.hdf5_file_path, 'Data.h5')
         self.hdf5_file = tables.open_file(self.hdf5_file, mode='w')
 
-    def getNdArray(self):
+    def createNdArray(self):
         """
         Method to create an Nd array to store images and an array to store respective labels
         :return: None
@@ -37,20 +40,22 @@ class CreateNdDataArray(object):
                                                      shape=[0, resize_shape[0], resize_shape[1], channel_depth])
 
         image_channel_wise_sum = np.zeros(shape=[resize_shape[0], resize_shape[1], channel_depth])
-        num_images = 0
-        labels = []
+        num_images, labels = 0, []
+
         # add image data to images_earray
-        for image_path in data_dir.glob('*/*'):
+        raw_data = data_dir/"RawData"
+        logging.info('Creating HDF5 numpy data from raw images..........................................................')
+        for image_path in raw_data.glob('*/*'):
             labels.append(image_path.stem)
             img = Image.open(image_path)
-            img = img.resize(resize_shape, Image.ANTIALIAS)
-            img_ar = np.array(img)[:, :, :3]
+
+            # resize image using predifined dimensions in config
+            img_tensor = tf.convert_to_tensor(np.array(img))
+            img_rz = resize_image(img_tensor).numpy()
+            img_ar = np.array(img_rz)[:, :, :3]
             images_earray.append(img_ar[None])
             image_channel_wise_sum += img_ar
             num_images += 1
-
-        # image_channel_wise_mean = np.sum(image_channel_wise_sum, axis=(0, 1)) / num_images
-        # TODO: Add code to calculate mean and std for images
 
         self.hdf5_file.create_array(where=self.hdf5_file.root,
                                     name='labels',
@@ -61,4 +66,4 @@ class CreateNdDataArray(object):
 if __name__ == '__main__':
     # TODO: Write test data for CreateDataArray
     o = CreateNdDataArray()
-    o.getNdArray()
+    o.createNdArray()

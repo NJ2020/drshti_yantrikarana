@@ -18,18 +18,13 @@ sys.path.append(Path(__file__).resolve().parent.parent.parent.parent.parent.as_p
 from drshti_yantrikarana import resize_shape
 
 
-def resize_image(image_path: str) -> tf.image:
+def resize_image(img_tensor: tf.convert_to_tensor) -> tf.image:
     """
     Function to read an image, convert it into a square image and 
     resize it to standard resolution as defined in config
-    :param image_path:str
+    :param image_path:tf.convert_to_tensor
     :return: tf.image
     """
-
-    # read image
-    image_raw = tf.io.read_file(image_path)
-    img_tensor = tf.image.decode_image(image_raw)
-
     # create a central crop wrt larger side to create square image
     h, w = tf.shape(img_tensor)[:2]
     if h > w:

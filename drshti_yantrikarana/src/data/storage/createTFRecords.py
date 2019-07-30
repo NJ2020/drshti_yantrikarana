@@ -4,19 +4,27 @@ stored from a hdf5 file
 
 Author: Satish Jasthi
 """
+import logging
+from pathlib import Path
+
 import numpy as np
 import tables
 import tensorflow as tf
 
 from drshti_yantrikarana import hdf5_data, tfRecord_data
+from drshti_yantrikarana.config import external_data_dir, LOGGER_LEVEL
+from drshti_yantrikarana.src.data.storage.createDataArrays import CreateNdDataArray
 
+logging.basicConfig(level=LOGGER_LEVEL)
 
 class TfRecords(object):
 
     def __init__(self):
-        self.hdf5_data = tables.open_file(hdf5_data, mode='r')
-        tfRecord_data.parent.mkdir(parents=True, exist_ok=True)
-        pass
+        if hdf5_data.exists():
+            self.hdf5_data = tables.open_file(hdf5_data, mode='r')
+            tfRecord_data.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            raise IOError(f'Unable to find {hdf5_data.as_posix()}, Please create hdf5 file before running tf records')
 
     @staticmethod
     def _int64_feature(value):
@@ -52,6 +60,7 @@ class TfRecords(object):
         Method to create TFRecord for data set
         :return:
         """
+        logging
         # read images and labels from hdf5
         hdf5_data_arrays = tables.open_file(hdf5_data, w='r')
 
@@ -93,5 +102,11 @@ class TfRecords(object):
         parsed_image_dataset = raw_image_dataset.map(self._parse_image_function)
         return parsed_image_dataset
 
+def main():
+    CreateNdDataArray().createNdArray()
+    tfRecord_creator = TfRecords()
+    tfRecord_creator.writeTfRecord()
+
+
 if __name__ == '__main__':
-    TfRecords().writeTfRecord()
+    main()

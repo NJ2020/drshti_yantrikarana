@@ -22,4 +22,6 @@ else:
     mysql_engine = create_database(mysql_credentials)
 
 # Mongo db..............................................................................................................
-mongo_engine = MongoClient()
+mongo_client = MongoClient()
+mongo_db = mongo_client['drshti_yantrikarana']
+mean_std_coltn = mongo_db['mean_std']
