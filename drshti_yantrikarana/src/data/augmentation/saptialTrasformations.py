@@ -22,7 +22,7 @@ def convertNpArray2Image(arr: np.array) -> Image:
     """
     Function to convert np array to PIL image
     """
-    return Image.fromarray(arr.astype('unit8'))
+    return Image.fromarray(arr.astype('uint8'))
 
 
 def random_flip(image: Image, flip_mode: str) -> Image:
@@ -53,7 +53,7 @@ def pad_image(image: Image, padding: list) -> Image:
     image = np.array(image)
     padding = tf.constant(padding)
     padded_img = tf.pad(image, padding, mode='CONSTANT')
-    return convertNpArray2Image(pad_image.numpy())
+    return convertNpArray2Image(padded_img.numpy())
 
 
 def random_crop(image: Image, height: int, width: int, depth: int) -> Image:
@@ -114,7 +114,7 @@ def equalize(image: Image) -> Image:
 def autocontrast(image: Image) -> Image:
     """Implements Autocontrast function from PIL using TF ops.
   """
-
+    image = tf.convert_to_tensor(np.array(image))
     def scale_channel(image: np.array):
         """Scale the 2D image using the autocontrast rule."""
         # A possibly cheaper version can be done using cumsum/unique_with_counts

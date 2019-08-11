@@ -22,9 +22,12 @@ TrainHdf5_data = data_dir.joinpath(data_dir.parent, 'HDF5_data_files/TrainData.h
 TrainTfRecord_data = data_dir.joinpath(data_dir.parent, 'TFRecords_data_files/TrainData.tfrecords')
 TestHdf5_data = data_dir.joinpath(data_dir.parent, 'HDF5_data_files/TestData.h5')
 TestTfRecord_data = data_dir.joinpath(data_dir.parent, 'TFRecords_data_files/TestData.tfrecords')
+OfflineDataAugImages = data_dir.joinpath(data_dir.parent, 'HDF5_data_files/AugmentedImageData.h5')
+OfflineDataAugLabels = data_dir.joinpath(data_dir.parent, 'HDF5_data_files/AugmentedLabelData.h5')
 
 # data preprocessing####################################################################################################
-resize_shape = (224,224)
+resize_shape = (32,32)
+num_classes = 10
 # mu and sigma must be tf.float64
 # TODO add code to calculate data_mu and data_sigma
 data_mu = ''
