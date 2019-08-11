@@ -2,7 +2,7 @@
 Reference: 
 Usage:
 
-About: Script
+About:
 
 Author: Satish Jasthi
 """
